@@ -57,6 +57,22 @@ app.put("/api/v1/user/:id", (req, res) => {
   res.status(200).json({ success: true, data: newUser });
 });
 
+app.delete("/api/v1/user/:id", (req, res) => {
+  const { id } = req.params;
+
+  const user = people.find((user) => user.id === Number(id));
+
+  if (!user) {
+    return res
+      .status(404)
+      .json({ success: false, msg: `user doesn't exist with this id:${id}` });
+  }
+
+  const newUser = people.filter((user) => user.id !== Number(id));
+
+  res.status(200).json({ success: true, data: newUser });
+});
+
 app.all("*", (req, res) => {
   res.status(404).send("Resource not found");
 });
