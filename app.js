@@ -1,13 +1,22 @@
 const express = require("express");
-const path = require("path");
 const app = express();
+let { people } = require("./data");
 
-app.get("/", (req, res) => {
-  res.send("<h1>Home Page</h1><a href='/api/products'>Products</a>");
+// parse json here
+app.use(express.json());
+
+app.get("/api/user", (req, res) => {
+  res.status(200).json({ success: true, data: people });
 });
 
-app.get("/about", (req, res) => {
-  res.status(200).json([{ msg: "About page" }]);
+app.post("/api/user", (req, res) => {
+  const { name } = req.body;
+  if (!name) {
+    return res
+      .status(400)
+      .json({ success: false, msg: "please Provide name value" });
+  }
+  res.status(201).json({ success: true, user: name });
 });
 
 app.all("*", (req, res) => {
