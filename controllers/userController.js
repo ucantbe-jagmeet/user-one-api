@@ -1,6 +1,7 @@
 let { people } = require("../data");
 const { StatusCodes } = require("http-status-codes");
 const User = require("../models/userSchema");
+const { NotFoundError, BadRequestError } = require("../errors");
 
 const getAllUser = async (req, res) => {
   const user = await User.find();
@@ -8,8 +9,16 @@ const getAllUser = async (req, res) => {
 };
 
 const getUser = async (req, res) => {
-  res.status(StatusCodes.OK).send("single USer");
+  const { id: userID } = req.params;
+  const user = await User.findOne({ _id: userID });
+
+  if (!user) {
+    throw new NotFoundError(`No user with id ${userID}`);
+  }
+
+  res.status(StatusCodes.OK).json({ user });
 };
+
 const createUser = async (req, res) => {
   try {
     const user = await User.create(req.body);
@@ -19,42 +28,33 @@ const createUser = async (req, res) => {
   }
 };
 
-const updateUser = (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
+const updateUser = async (req, res) => {
+  const { id: userID } = req.params;
+  const { name, email, status, gender } = req.body;
 
-  const user = people.find((user) => user.id === Number(id));
-
-  if (!user) {
-    return res
-      .status(404)
-      .json({ success: false, msg: `user doesn't exist with this id:${id}` });
+  if (name === "" || email === "" || status === "" || gender === "") {
+    throw new BadRequestError(`Name or email fields can not be empty`);
   }
-
-  const newUser = people.map((user) => {
-    if (user.id === Number(id)) {
-      user.name = name;
-    }
-    return user;
+  const user = await User.findByIdAndUpdate({ _id: userID }, req.body, {
+    new: true,
+    runValidators: true,
   });
 
-  res.status(200).json({ success: true, data: newUser });
+  if (!user) {
+    throw new NotFoundError(`No user with id ${userID}`);
+  }
+  res.status(STatusCodes.OK).json({ user });
 };
 
-const deleteUser = (req, res) => {
-  const { id } = req.params;
+const deleteUser = async (req, res) => {
+  const { id: userID } = req.params;
 
-  const user = people.find((user) => user.id === Number(id));
+  const user = await User.findByIdAndRemove({ _id: userID });
 
   if (!user) {
-    return res
-      .status(404)
-      .json({ success: false, msg: `user doesn't exist with this id:${id}` });
+    throw new NotFoundError(`No user with id ${userID}`);
   }
-
-  const newUser = people.filter((user) => user.id !== Number(id));
-
-  res.status(200).json({ success: true, data: newUser });
+  res.status(StatusCodes.OK).send("User deleted");
 };
 
 module.exports = {
