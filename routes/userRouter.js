@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 let { people } = require("../data");
 
-router.get("/api/v1/user", (req, res) => {
+router.get("/", (req, res) => {
   res.status(200).json({ success: true, data: people });
 });
 
-router.post("/api/v1/user", (req, res) => {
+router.post("/", (req, res) => {
   const { id, name } = req.body;
   const newUser = { id: id, name: name };
   const updatedUser = [...people, newUser];
@@ -19,7 +19,7 @@ router.post("/api/v1/user", (req, res) => {
   res.status(201).json({ success: true, newUser });
 });
 
-router.post("/api/v1/user/display", (req, res) => {
+router.post("/display", (req, res) => {
   const { id, name } = req.body;
 
   if (!name) {
@@ -32,7 +32,7 @@ router.post("/api/v1/user/display", (req, res) => {
     .json({ success: true, data: [...people, { id: id, name: name }] });
 });
 
-router.put("/api/v1/user/:id", (req, res) => {
+router.put("/:id", (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
 
@@ -54,7 +54,7 @@ router.put("/api/v1/user/:id", (req, res) => {
   res.status(200).json({ success: true, data: newUser });
 });
 
-router.delete("/api/v1/user/:id", (req, res) => {
+router.delete("/:id", (req, res) => {
   const { id } = req.params;
 
   const user = people.find((user) => user.id === Number(id));
