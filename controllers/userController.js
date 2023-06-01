@@ -1,20 +1,21 @@
 let { people } = require("../data");
+const User = require("../models/userSchema");
 
 const getUser = (req, res) => {
   res.status(200).json({ success: true, data: people });
 };
 
-const createUser = (req, res) => {
-  const { id, name } = req.body;
-  const newUser = { id: id, name: name };
-  const updatedUser = [...people, newUser];
+const createUser = async (req, res) => {
+  const user = await User.create(req.body);
+
+  const { name } = req.body;
 
   if (!name) {
     return res
       .status(400)
       .json({ success: false, msg: "please Provide name value" });
   }
-  res.status(201).json({ success: true, newUser });
+  res.status(201).json({ success: true, user });
 };
 
 const createUserDisplay = (req, res) => {
