@@ -1,34 +1,22 @@
 let { people } = require("../data");
+const { StatusCodes } = require("http-status-codes");
 const User = require("../models/userSchema");
 
-const getUser = (req, res) => {
-  res.status(200).json({ success: true, data: people });
+const getAllUser = async (req, res) => {
+  const user = await User.find();
+  res.status(StatusCodes.OK).json({ user, count: user.length });
 };
 
+const getUser = async (req, res) => {
+  res.status(StatusCodes.OK).send("single USer");
+};
 const createUser = async (req, res) => {
-  const user = await User.create(req.body);
-
-  const { name } = req.body;
-
-  if (!name) {
-    return res
-      .status(400)
-      .json({ success: false, msg: "please Provide name value" });
+  try {
+    const user = await User.create(req.body);
+    res.status(StatusCodes.CREATED).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ msg: error });
   }
-  res.status(201).json({ success: true, user });
-};
-
-const createUserDisplay = (req, res) => {
-  const { id, name } = req.body;
-
-  if (!name) {
-    return res
-      .status(400)
-      .json({ success: false, msg: "please Provide name value" });
-  }
-  res
-    .status(201)
-    .json({ success: true, data: [...people, { id: id, name: name }] });
 };
 
 const updateUser = (req, res) => {
@@ -71,8 +59,8 @@ const deleteUser = (req, res) => {
 
 module.exports = {
   getUser,
+  getAllUser,
   createUser,
-  createUserDisplay,
   updateUser,
   deleteUser,
 };
